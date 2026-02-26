@@ -299,15 +299,72 @@
         selectedNotes: ['C']
     };
 
-    const noteNames = {
-        universal: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-        french: ['Do', 'Do#', 'Ré', 'Ré#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si']
-    };
+    // Notes universelles et françaises avec dièses/bémols
+const noteNamesAccidentals = [
+    {sharp: 'C', flat: 'C'}, 
+    {sharp: 'C#', flat: 'Db'}, 
+    {sharp: 'D', flat: 'D'}, 
+    {sharp: 'D#', flat: 'Eb'}, 
+    {sharp: 'E', flat: 'E'}, 
+    {sharp: 'F', flat: 'F'}, 
+    {sharp: 'F#', flat: 'Gb'}, 
+    {sharp: 'G', flat: 'G'}, 
+    {sharp: 'G#', flat: 'Ab'}, 
+    {sharp: 'A', flat: 'A'}, 
+    {sharp: 'A#', flat: 'Bb'}, 
+    {sharp: 'B', flat: 'B'}
+];
 
-    const intervalToDegree = {
-        0: '1', 1: 'b2', 2: '2', 3: 'b3', 4: '3', 5: '4',
-        6: '#4', 7: '5', 8: 'b6', 9: '6', 10: 'b7', 11: '7'
-    };
+const noteNamesFrenchAccidentals = [
+    {sharp: 'Do', flat: 'Do'}, 
+    {sharp: 'Do#', flat: 'Réb'}, 
+    {sharp: 'Ré', flat: 'Ré'}, 
+    {sharp: 'Ré#', flat: 'Mib'}, 
+    {sharp: 'Mi', flat: 'Mi'}, 
+    {sharp: 'Fa', flat: 'Fa'}, 
+    {sharp: 'Fa#', flat: 'Solb'}, 
+    {sharp: 'Sol', flat: 'Sol'}, 
+    {sharp: 'Sol#', flat: 'Lab'}, 
+    {sharp: 'La', flat: 'La'}, 
+    {sharp: 'La#', flat: 'Sib'}, 
+    {sharp: 'Si', flat: 'Si'}
+];
+
+// Tonalités qui préfèrent les bémols
+const flatKeys = [
+    'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb',
+    'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm', 'Abm'
+];
+
+// Déterminer si une tonalité doit utiliser les bémols
+function useFlats(key) {
+    return flatKeys.includes(key);
+}
+
+// Conversion intervalles → degrés
+const intervalToDegree = {
+    0: '1', 1: 'b2', 2: '2', 3: 'b3', 4: '3', 5: '4',
+    6: '#4', 7: '5', 8: 'b6', 9: '6', 10: 'b7', 11: '7'
+};
+
+// Tableaux pour notation universelle / française
+const noteNames = {
+    universal: noteNamesAccidentals.map(n => n.sharp), // C, C#, D...
+    french: noteNamesFrenchAccidentals.map(n => n.sharp) // Do, Do#, Ré...
+};
+
+// Exemple : récupérer le nom de la note selon notation et tonalité
+function getNoteName(index, notation='universal', key='C') {
+    if(notation === 'degrees') return intervalToDegree[index];
+    const useFlat = useFlats(key);
+    if(notation === 'universal') return useFlat ? noteNamesAccidentals[index].flat : noteNamesAccidentals[index].sharp;
+    if(notation === 'french') return useFlat ? noteNamesFrenchAccidentals[index].flat : noteNamesFrenchAccidentals[index].sharp;
+}
+
+const noteIndex = 1; // exemple : C# / Db
+console.log(getNoteName(noteIndex, 'universal', 'F')); // Db
+console.log(getNoteName(noteIndex, 'french', 'F')); // Réb
+console.log(getNoteName(noteIndex, 'degrees', 'C')); // b2
 
     const tuning = [4, 11, 7, 2, 9, 4]; // E B G D A E
 
@@ -353,10 +410,10 @@
     }
 
     function getVisibleNotes() {
-        if (state.mode === 'scale') return getNotesByScale();
-        if (state.mode === 'arpeggio') return getNotesByArpeggio();
-        return state.selectedNotes.map(note => getKeyIndex(note));
-    }
+    if (state.mode === 'scale') return getNotesByScale();
+    if (state.mode === 'arpeggio') return getNotesByArpeggio();
+    return state.selectedNotes.map(note => getKeyIndex(note)).filter(idx => idx !== -1);
+}
 
     // Initialize notes grid
     function initializeNotesGrid() {
@@ -456,6 +513,21 @@
         updateFretboard();
     });
 
+    function getNoteNameByIndex(noteIndex) {
+    const key = state.selectedKey;
+    const flats = useFlats(key);
+    
+    if(state.notation === 'french') {
+        return flats ? noteNamesFrenchAccidentals[noteIndex].flat : noteNamesFrenchAccidentals[noteIndex].sharp;
+    } else if(state.notation === 'universal') {
+        return flats ? noteNamesAccidentals[noteIndex].flat : noteNamesAccidentals[noteIndex].sharp;
+    } else {
+        // notation degrés
+        const tonicIndex = getKeyIndex(state.selectedKey);
+        return intervalToDegree[(noteIndex - tonicIndex + 12) % 12];
+    }
+}
+
     // Draw fretboard
     function updateFretboard() {
         const svg = document.getElementById('fretboard');
@@ -497,24 +569,15 @@
 
         // String names
 for(let i=0;i<6;i++){
-
     const noteIndex = tuning[i];
-    let name;
-
-    // IMPORTANT : toujours afficher le nom réel, jamais les degrés
-    if(state.notation === 'french')
-        name = noteNames.french[noteIndex];
-    else
-        name = noteNames.universal[noteIndex];
+    const name = getNoteNameByIndex(noteIndex); // <-- ici on récupère bien le nom
 
     const text = document.createElementNS('http://www.w3.org/2000/svg','text');
 
     text.setAttribute('x', 25);
     text.setAttribute('y', firstStringY + i * stringSpacing);
-
     text.setAttribute('text-anchor','middle');
     text.setAttribute('dominant-baseline','middle');
-
     text.setAttribute('fill','#ffffff');
     text.setAttribute('font-size','10');
     text.setAttribute('font-weight','bold');
@@ -563,16 +626,12 @@ for(let i=0;i<=fretCount;i++){
 
         for(let s=0;s<6;s++){
             for(let f=-1;f<fretCount;f++){
-                const noteIndex = (tuning[s]+(f+1))%12;
-                if(f===-1 && !visibleNotes.includes(noteIndex)) continue;
-                if(f>=0 && !visibleNotes.includes(noteIndex)) continue;
+                const noteIndex = f === -1 ? tuning[s] : (tuning[s] + f) % 12;
+if(!visibleNotes.includes(noteIndex)) continue;
 
                 const x = f===-1?openStringX:startX + f * fretWidth + fretWidth/2;
                 const y = firstStringY + s * stringSpacing;
-                let noteName = '';
-                if(state.notation==='universal') noteName = noteNames.universal[noteIndex];
-                else if(state.notation==='french') noteName = noteNames.french[noteIndex];
-                else noteName = intervalToDegree[(noteIndex - tonicIndex + 12)%12];
+                let noteName = getNoteNameByIndex(noteIndex);
 
                 const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
                 circle.setAttribute('cx',x);
