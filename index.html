@@ -290,14 +290,15 @@
 
    <script>
     // State management
-    const state = {
-        notation: 'universal',
-        mode: 'scale',
-        selectedScale: 'major',
-        selectedArpeggio: 'major', // <-- séparé de la gamme
-        selectedKey: 'C',
-        selectedNotes: ['C']
-    };
+   const state = {
+    notation: 'universal',
+    mode: 'scale',
+    selectedScale: 'major',
+    selectedArpeggio: 'major',
+    selectedKey: 'C',
+    selectedNotes: ['C'],
+    selectedPositions: []
+};
 
     // Notes universelles et françaises avec dièses/bémols
 const noteNamesAccidentals = [
@@ -339,6 +340,12 @@ const flatKeys = [
 // Déterminer si une tonalité doit utiliser les bémols
 function useFlats(key) {
     return flatKeys.includes(key);
+}
+
+function isPositionSelected(stringIndex, fretNumber) {
+    return state.selectedPositions.some(
+        pos => pos.string === stringIndex && pos.fret === fretNumber
+    );
 }
 
 // Conversion intervalles → degrés
@@ -602,32 +609,42 @@ for(let i=0;i<6;i++){
         }
 
         // Fret numbers
-for(let i=0;i<=fretCount;i++){
+for (let i = 0; i <= fretCount; i++) {
+    let x;
 
-    const x = startX + i * fretWidth;
+    if (i === 0) {
+        x = openStringX; // corde à vide
+    } else {
+        x = startX + (i - 1) * fretWidth + fretWidth / 2; // centre de la case
+    }
 
-    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
-
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     text.setAttribute('x', x);
     text.setAttribute('y', firstStringY - neckPadding - 10);
-
-    text.setAttribute('text-anchor','middle');
-
-    text.setAttribute('fill','#ffffff');
-    text.setAttribute('font-size','12');
-    text.setAttribute('font-weight','bold');
-
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#ffffff');
+    text.setAttribute('font-size', '12');
+    text.setAttribute('font-weight', 'bold');
     text.textContent = i;
 
     svg.appendChild(text);
 }
 
+
         const tonicIndex = getKeyIndex(state.selectedKey);
 
-        for(let s=0;s<6;s++){
-            for(let f=-1;f<fretCount;f++){
-                const noteIndex = f === -1 ? tuning[s] : (tuning[s] + f) % 12;
-if(!visibleNotes.includes(noteIndex)) continue;
+       for(let s=0;s<6;s++){
+    for(let f=-1;f<fretCount;f++){
+        const noteIndex = f === -1 ? tuning[s] : (tuning[s] + f + 1) % 12;
+
+        if(state.mode === 'custom') {
+            const selectedByGrid = visibleNotes.includes(noteIndex);
+            const selectedByPosition = isPositionSelected(s, f);
+
+            if(!selectedByGrid && !selectedByPosition) continue;
+        } else {
+            if(!visibleNotes.includes(noteIndex)) continue;
+        }
 
                 const x = f===-1?openStringX:startX + f * fretWidth + fretWidth/2;
                 const y = firstStringY + s * stringSpacing;
@@ -665,6 +682,48 @@ if(!visibleNotes.includes(noteIndex)) continue;
             }
         }
     }
+    
+  document.getElementById('fretboard').addEventListener('dblclick', function(event) {
+    if (state.mode !== 'custom') return;
+
+    const svg = this;
+    const pt = svg.createSVGPoint();
+    pt.x = event.clientX;
+    pt.y = event.clientY;
+    const cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    const stringSpacing = 38;
+    const firstStringY = 60;
+    const fretCount = 15;
+    const fretWidth = 48;
+    const startX = 50;
+
+    let stringNumber = Math.round((cursorpt.y - firstStringY) / stringSpacing);
+    if (stringNumber < 0 || stringNumber > 5) return;
+
+    let fretNumber;
+    if (cursorpt.x < startX) {
+        fretNumber = -1; // corde à vide
+    } else {
+        fretNumber = Math.floor((cursorpt.x - startX) / fretWidth);
+        if (fretNumber < 0 || fretNumber > fretCount - 1) return;
+    }
+
+    const existingIndex = state.selectedPositions.findIndex(
+        pos => pos.string === stringNumber && pos.fret === fretNumber
+    );
+
+    if (existingIndex !== -1) {
+        state.selectedPositions.splice(existingIndex, 1);
+    } else {
+        state.selectedPositions.push({
+            string: stringNumber,
+            fret: fretNumber
+        });
+    }
+
+    updateFretboard();
+});
 
     // Initialize
     updateUI();
