@@ -608,15 +608,9 @@ for(let i=0;i<6;i++){
             svg.appendChild(line);
         }
 
-        // Fret numbers
-for (let i = 0; i <= fretCount; i++) {
-    let x;
-
-    if (i === 0) {
-        x = openStringX; // corde à vide
-    } else {
-        x = startX + (i - 1) * fretWidth + fretWidth / 2; // centre de la case
-    }
+       // Fret numbers
+for (let i = 1; i <= fretCount; i++) {
+    const x = startX + (i - 1) * fretWidth + fretWidth / 2;
 
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     text.setAttribute('x', x);
