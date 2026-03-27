@@ -1,726 +1,653 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manche de Guitare Interactif</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fretboard — Guitarisation™</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #f5f5f3;
+      --card:        #ffffff;
+      --accent:      #d4a017;
+      --accent-soft: #fef9e3;
+      --gold:        #e8c23a;
+      --gold-hover:  #d4af30;
+      --dark:        #111111;
+      --text:        #1a1a1a;
+      --muted:       #9ca3af;
+      --muted2:      #6b7280;
+      --border:      #e8e8e4;
+      --border2:     #f0f0ec;
+      --r:    22px;
+      --r-sm: 11px;
+      --r-xs:  8px;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.85) 0%, transparent 70%);
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--text);
+    }
 
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            margin-top: 30px;
-        }
+    .container { max-width: 1200px; margin: 0 auto; }
 
-        header h1 {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+    /* === HEADER === */
+    header {
+      width: 100%;
+      padding: 10px 0 18px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
 
-        header .subtitle {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
+    .header-byline {
+      font-size: 12px; font-weight: 500;
+      color: var(--muted2); letter-spacing: 0.2px;
+      justify-self: start;
+    }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0px;
-            margin-top: 0px;
-        }
+    .header-logo { justify-self: center; }
+    .header-logo img { height: 42px; width: auto; display: block; }
 
-        .control-panel {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-        }
+    .header-logo-text {
+      font-size: 22px; font-weight: 900;
+      letter-spacing: -0.5px; color: var(--dark); line-height: 1;
+    }
+    .header-logo-text em { font-style: normal; color: var(--accent); }
 
-        .control-group {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-        }
+    .header-cta { justify-self: end; position: relative; }
 
-        .control-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #667eea;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 12px;
-        }
+    .btn-school {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: var(--gold);
+      color: #fff;
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(232,194,58,0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s;
+    }
+    .btn-school:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(232,194,58,0.45);
+      background: var(--gold-hover);
+    }
+    .btn-school:active { transform: translateY(0); }
 
-        select {
-            width: 100%;
-            padding: 10px 12px;
-            background-color: #f5f7fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            color: #333;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.3s ease;
-        }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 36px; height: 36px; padding: 6px;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-xs);
+      cursor: pointer; position: relative;
+    }
+    .hamburger span {
+      display: block; height: 2px; border-radius: 2px;
+      background: var(--dark); transition: background 0.15s;
+    }
+    .hamburger:hover span { background: var(--accent); }
 
-        select:hover {
-            border-color: #667eea;
-        }
+    .nav-dropdown {
+      display: none;
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: white;
+      border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+      min-width: 220px; overflow: hidden; z-index: 100;
+    }
+    .nav-dropdown.open { display: block; }
+    .nav-dropdown a {
+      display: block; padding: 14px 18px;
+      font-size: 13px; font-weight: 600;
+      color: var(--text); text-decoration: none;
+      transition: background 0.1s;
+    }
+    .nav-dropdown a:hover { background: var(--border2); }
+    .nav-dropdown a::before { content: '→ '; color: var(--gold); }
 
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
+    /* === ANIMATIONS === */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes flipFromLeft {
+      from { opacity: 0; transform: perspective(900px) translateX(-70px) rotateY(-18deg); }
+      to   { opacity: 1; transform: perspective(900px) translateX(0) rotateY(0deg); }
+    }
+    .anim-header { animation: fadeIn       0.45s ease                              both; }
+    .anim-card   { animation: flipFromLeft 0.65s cubic-bezier(0.08, 0.92, 0.18, 1) 0.05s both; }
 
-        .notes-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
+    /* === CONTROLS === */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 0;
+    }
 
-        /* Grille des notes uniquement visible en mode custom */
-        .control-panel.custom-mode #customNotesGroup {
-    display: block;
-}
+    .control-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
 
-        .control-panel.custom-mode #notesGrid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr); /* 12 notes sur 2 lignes */
-    gap: 8px;
-}
+    .control-group {
+      background: var(--card);
+      border-radius: var(--r-sm);
+      padding: 16px 18px;
+      box-shadow:
+        0 20px 48px rgba(0,0,0,0.07),
+        0 4px 12px rgba(0,0,0,0.04);
+    }
 
-        .note-btn {
-            padding: 10px 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background-color: #f5f7fa;
-            color: #667eea;
-            border: 2px solid #e0e0e0;
-        }
+    .control-group label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
 
-        .note-btn:hover {
-            transform: scale(1.05);
-            border-color: #667eea;
-        }
+    select {
+      width: 100%;
+      padding: 6px 10px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-xs);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    select:hover, select:focus { border-color: var(--accent); }
 
-        .fretboard-container {
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
 
-    background: transparent;
-    border-radius: 0px;
-    padding: 0%;
-    margin-top: 40px;
+    .control-panel.custom-mode #customNotesGroup { display: block; }
+    .control-panel.custom-mode #notesGrid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
 
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+    .note-btn {
+      padding: 8px 6px;
+      border-radius: var(--r-xs);
+      font-size: 11px;
+      font-weight: 700;
+      font-family: inherit;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: var(--border2);
+      color: var(--muted2);
+    }
+    .note-btn:hover { border-color: var(--accent); transform: scale(1.04); }
 
-}
-#fretboard {
+    /* === FRETBOARD === */
+    .fretboard-container {
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+      margin-top: 8px;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
 
-    width: 100%;
-    height: auto;
-    display: block;
+    #fretboard { width: 100%; height: auto; display: block; }
 
-}
+    .fretboard-container svg {
+      width: 100%; height: auto;
+      max-width: 100%; display: block;
+    }
 
-        .fretboard-container svg {
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-            display: block;
-        }
+    /* === FOOTER === */
+    footer {
+      width: 100%;
+      margin-top: 28px; padding: 12px 0 6px;
+      text-align: center;
+      font-size: 11px; font-weight: 500; color: var(--muted);
+      border-top: 1px solid var(--border2);
+    }
 
-        footer {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 20px 0;
-            text-align: center;
-            color: white;
-        }
+    /* === RESPONSIVE === */
+    @media (max-width: 640px) {
+      header { padding: 10px 0 14px; grid-template-columns: 1fr auto 1fr; }
+      .header-logo img { height: 32px; }
+      .header-byline { font-size: 10px; }
+      .btn-school { display: none; }
+      .hamburger  { display: flex; }
+    }
 
-        footer p {
-            margin: 0;
-            font-size: 1em;
-        }
-
-        @media (max-width: 992px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 20px;
-                font-size: 0.85em;
-            }
-            header h1 {
-                font-size: 1.8em;
-            }
-            .control-panel {
-                grid-template-columns: 1fr;
-            }
-            .control-group {
-                padding: 15px;
-            }
-        }
-    </style>
+    @media (max-width: 480px) {
+      body { padding: 12px; font-size: 0.85em; }
+      .control-panel { grid-template-columns: 1fr; }
+      .control-group { padding: 12px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-           <h1>Fretboard Guitarisation™</h1>
-<p class="subtitle">Explorez les notes, gammes et arpèges sur le manche.</p>
-        </header>
+  <div class="container">
 
-        <div class="grid">
-            <!-- Controls -->
-            <div class="control-panel">
+    <header class="anim-header">
+      <div class="header-byline">par Samuel Ferton</div>
 
-             <!-- Affichage -->
-                <div class="control-group">
-                    <label>Affichage</label>
-                    <select id="modeSelect">
-                        <option value="scale">Gammes</option>
-                        <option value="arpeggio">Arpèges</option>
-                        <option value="custom">Notes personnalisées</option>
-                    </select>
-                </div>
+      <div class="header-logo">
+        <img src="Logo Guitarisation.png" alt="Guitarisation™ — L'École de Guitare 2.0"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <div class="header-logo-text" style="display:none">Guitar<em>isation</em>™</div>
+      </div>
 
-                <!-- Notation -->
-                <div class="control-group">
-                    <label>Notation</label>
-                    <select id="notationSelect">
-                        <option value="universal">Universel (C, D, E...)</option>
-                        <option value="french">Français (Do, Ré, Mi...)</option>
-                        <option value="degrees">Degrés (1, 2, 3...)</option>
-                    </select>
-                </div>
+      <div class="header-cta">
+        <a class="btn-school" href="https://guitarschool.guitarisation.fr/login"
+           target="_blank" rel="noopener">
+          Aller sur l'école Guitarisation™
+        </a>
+        <button class="hamburger" id="hamburgerBtn" onclick="toggleNav()" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="nav-dropdown" id="navDropdown">
+          <a href="https://guitarschool.guitarisation.fr/login" target="_blank" rel="noopener">
+            Aller sur l'école Guitarisation™
+          </a>
+        </div>
+      </div>
+    </header>
 
-                <!-- Gammes -->
-                <div class="control-group" id="scaleGroup">
-                    <label>Gamme</label>
-                    <select id="scaleSelect">
-                        <option value="major">Majeure</option>
-                        <option value="minor">Mineure</option>
-                        <option value="harmoniqueMinor">Mineure Harmonique</option>
-                        <option value="melodiqueMineur">Mineure Mélodique</option>
-                        <option value="pentatonicMinor">Pentatonique Mineure</option>
-                        <option value="pentatonicMajor">Pentatonique Majeure</option>
-                        <option value="blues">Blues</option>
-                    </select>
-                </div>
+    <div class="anim-card">
+      <div class="grid">
+        <div class="control-panel">
 
-                <!-- Arpèges -->
-                <div class="control-group" id="arpeggioGroup" style="display: none;">
-                    <label>Arpège</label>
-                    <select id="arpeggioSelect">
-                        <option value="major">Majeur</option>
-                        <option value="minor">Mineur</option>
-                        <option value="dominant7">Dominante 7</option>
-                        <option value="maj7">Maj7</option>
-                        <option value="min7">Min7</option>
-                    </select>
-                </div>
+          <div class="control-group">
+            <label>Affichage</label>
+            <select id="modeSelect">
+              <option value="scale">Gammes</option>
+              <option value="arpeggio">Arpèges</option>
+              <option value="custom">Notes personnalisées</option>
+            </select>
+          </div>
 
-                <!-- Notes Personnalisées -->
-                <div class="control-group" id="customNotesGroup" style="display: none;">
-                    <label>Sélectionnez les notes</label>
-                    <div class="notes-grid" id="notesGrid"></div>
-                </div>
+          <div class="control-group">
+            <label>Notation</label>
+            <select id="notationSelect">
+              <option value="universal">Universel (C, D, E...)</option>
+              <option value="french">Français (Do, Ré, Mi...)</option>
+              <option value="degrees">Degrés (1, 2, 3...)</option>
+            </select>
+          </div>
 
-                <!-- Tonalité -->
-                <div class="control-group" id="keyGroup">
-                    <label>Tonalité</label>
-                    <select id="keySelect">
-                        <option value="C">C</option>
-                        <option value="C#">C#</option>
-                        <option value="D">D</option>
-                        <option value="D#">D#</option>
-                        <option value="E">E</option>
-                        <option value="F">F</option>
-                        <option value="F#">F#</option>
-                        <option value="G">G</option>
-                        <option value="G#">G#</option>
-                        <option value="A">A</option>
-                        <option value="A#">A#</option>
-                        <option value="B">B</option>
-                    </select>
-                </div>
-            </div>
+          <div class="control-group" id="scaleGroup">
+            <label>Gamme</label>
+            <select id="scaleSelect">
+              <option value="major">Majeure</option>
+              <option value="minor">Mineure</option>
+              <option value="harmoniqueMinor">Mineure Harmonique</option>
+              <option value="melodiqueMineur">Mineure Mélodique</option>
+              <option value="pentatonicMinor">Pentatonique Mineure</option>
+              <option value="pentatonicMajor">Pentatonique Majeure</option>
+              <option value="blues">Blues</option>
+            </select>
+          </div>
 
-            <!-- Fretboard -->
-            <div class="fretboard-container">
-                <svg id="fretboard" width="100%" height="100%" viewBox="0 0 780 360" preserveAspectRatio="xMidYMid meet"></svg>
-            </div>
+          <div class="control-group" id="arpeggioGroup" style="display: none;">
+            <label>Arpège</label>
+            <select id="arpeggioSelect">
+              <option value="major">Majeur</option>
+              <option value="minor">Mineur</option>
+              <option value="dominant7">Dominante 7</option>
+              <option value="maj7">Maj7</option>
+              <option value="min7">Min7</option>
+            </select>
+          </div>
+
+          <div class="control-group" id="customNotesGroup" style="display: none;">
+            <label>Sélectionnez les notes</label>
+            <div class="notes-grid" id="notesGrid"></div>
+          </div>
+
+          <div class="control-group" id="keyGroup">
+            <label>Tonalité</label>
+            <select id="keySelect">
+              <option value="C">C</option>
+              <option value="C#">C#</option>
+              <option value="D">D</option>
+              <option value="D#">D#</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="F#">F#</option>
+              <option value="G">G</option>
+              <option value="G#">G#</option>
+              <option value="A">A</option>
+              <option value="A#">A#</option>
+              <option value="B">B</option>
+            </select>
+          </div>
         </div>
 
-        <footer>
-            <p>Samuel Ferton - École Guitarisation™</p>
-        </footer>
+        <div class="fretboard-container">
+          <svg id="fretboard" width="100%" height="100%" viewBox="0 0 780 360" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+      </div>
     </div>
 
-   <script>
+    <footer>
+      © 2026 Guitarisation™ — L'École de Guitare 2.0 · par Samuel Ferton
+    </footer>
+
+  </div>
+
+  <script>
+    function toggleNav() {
+      document.getElementById('navDropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#hamburgerBtn') && !e.target.closest('#navDropdown')) {
+        document.getElementById('navDropdown').classList.remove('open');
+      }
+    });
+
     // State management
-   const state = {
-    notation: 'universal',
-    mode: 'scale',
-    selectedScale: 'major',
-    selectedArpeggio: 'major',
-    selectedKey: 'C',
-    selectedNotes: ['C'],
-    selectedPositions: []
-};
+    const state = {
+      notation: 'universal',
+      mode: 'scale',
+      selectedScale: 'major',
+      selectedArpeggio: 'major',
+      selectedKey: 'C',
+      selectedNotes: ['C'],
+      selectedPositions: []
+    };
 
-    // Notes universelles et françaises avec dièses/bémols
-const noteNamesAccidentals = [
-    {sharp: 'C', flat: 'C'}, 
-    {sharp: 'C#', flat: 'Db'}, 
-    {sharp: 'D', flat: 'D'}, 
-    {sharp: 'D#', flat: 'Eb'}, 
-    {sharp: 'E', flat: 'E'}, 
-    {sharp: 'F', flat: 'F'}, 
-    {sharp: 'F#', flat: 'Gb'}, 
-    {sharp: 'G', flat: 'G'}, 
-    {sharp: 'G#', flat: 'Ab'}, 
-    {sharp: 'A', flat: 'A'}, 
-    {sharp: 'A#', flat: 'Bb'}, 
-    {sharp: 'B', flat: 'B'}
-];
+    const noteNamesAccidentals = [
+      {sharp: 'C', flat: 'C'}, {sharp: 'C#', flat: 'Db'}, {sharp: 'D', flat: 'D'},
+      {sharp: 'D#', flat: 'Eb'}, {sharp: 'E', flat: 'E'}, {sharp: 'F', flat: 'F'},
+      {sharp: 'F#', flat: 'Gb'}, {sharp: 'G', flat: 'G'}, {sharp: 'G#', flat: 'Ab'},
+      {sharp: 'A', flat: 'A'}, {sharp: 'A#', flat: 'Bb'}, {sharp: 'B', flat: 'B'}
+    ];
 
-const noteNamesFrenchAccidentals = [
-    {sharp: 'Do', flat: 'Do'}, 
-    {sharp: 'Do#', flat: 'Réb'}, 
-    {sharp: 'Ré', flat: 'Ré'}, 
-    {sharp: 'Ré#', flat: 'Mib'}, 
-    {sharp: 'Mi', flat: 'Mi'}, 
-    {sharp: 'Fa', flat: 'Fa'}, 
-    {sharp: 'Fa#', flat: 'Solb'}, 
-    {sharp: 'Sol', flat: 'Sol'}, 
-    {sharp: 'Sol#', flat: 'Lab'}, 
-    {sharp: 'La', flat: 'La'}, 
-    {sharp: 'La#', flat: 'Sib'}, 
-    {sharp: 'Si', flat: 'Si'}
-];
+    const noteNamesFrenchAccidentals = [
+      {sharp: 'Do', flat: 'Do'}, {sharp: 'Do#', flat: 'Réb'}, {sharp: 'Ré', flat: 'Ré'},
+      {sharp: 'Ré#', flat: 'Mib'}, {sharp: 'Mi', flat: 'Mi'}, {sharp: 'Fa', flat: 'Fa'},
+      {sharp: 'Fa#', flat: 'Solb'}, {sharp: 'Sol', flat: 'Sol'}, {sharp: 'Sol#', flat: 'Lab'},
+      {sharp: 'La', flat: 'La'}, {sharp: 'La#', flat: 'Sib'}, {sharp: 'Si', flat: 'Si'}
+    ];
 
-// Tonalités qui préfèrent les bémols
-const flatKeys = [
-    'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb',
-    'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm', 'Abm'
-];
+    const flatKeys = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb', 'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm', 'Abm'];
 
-// Déterminer si une tonalité doit utiliser les bémols
-function useFlats(key) {
-    return flatKeys.includes(key);
-}
+    function useFlats(key) { return flatKeys.includes(key); }
 
-function isPositionSelected(stringIndex, fretNumber) {
-    return state.selectedPositions.some(
-        pos => pos.string === stringIndex && pos.fret === fretNumber
-    );
-}
+    function isPositionSelected(stringIndex, fretNumber) {
+      return state.selectedPositions.some(pos => pos.string === stringIndex && pos.fret === fretNumber);
+    }
 
-// Conversion intervalles → degrés
-const intervalToDegree = {
-    0: '1', 1: 'b2', 2: '2', 3: 'b3', 4: '3', 5: '4',
-    6: '#4', 7: '5', 8: 'b6', 9: '6', 10: 'b7', 11: '7'
-};
+    const intervalToDegree = {
+      0: '1', 1: 'b2', 2: '2', 3: 'b3', 4: '3', 5: '4',
+      6: '#4', 7: '5', 8: 'b6', 9: '6', 10: 'b7', 11: '7'
+    };
 
-// Tableaux pour notation universelle / française
-const noteNames = {
-    universal: noteNamesAccidentals.map(n => n.sharp), // C, C#, D...
-    french: noteNamesFrenchAccidentals.map(n => n.sharp) // Do, Do#, Ré...
-};
+    const noteNames = {
+      universal: noteNamesAccidentals.map(n => n.sharp),
+      french: noteNamesFrenchAccidentals.map(n => n.sharp)
+    };
 
-// Exemple : récupérer le nom de la note selon notation et tonalité
-function getNoteName(index, notation='universal', key='C') {
-    if(notation === 'degrees') return intervalToDegree[index];
-    const useFlat = useFlats(key);
-    if(notation === 'universal') return useFlat ? noteNamesAccidentals[index].flat : noteNamesAccidentals[index].sharp;
-    if(notation === 'french') return useFlat ? noteNamesFrenchAccidentals[index].flat : noteNamesFrenchAccidentals[index].sharp;
-}
+    function getNoteName(index, notation='universal', key='C') {
+      if (notation === 'degrees') return intervalToDegree[index];
+      const useFlat = useFlats(key);
+      if (notation === 'universal') return useFlat ? noteNamesAccidentals[index].flat : noteNamesAccidentals[index].sharp;
+      if (notation === 'french') return useFlat ? noteNamesFrenchAccidentals[index].flat : noteNamesFrenchAccidentals[index].sharp;
+    }
 
-const noteIndex = 1; // exemple : C# / Db
-console.log(getNoteName(noteIndex, 'universal', 'F')); // Db
-console.log(getNoteName(noteIndex, 'french', 'F')); // Réb
-console.log(getNoteName(noteIndex, 'degrees', 'C')); // b2
-
-    const tuning = [4, 11, 7, 2, 9, 4]; // E B G D A E
+    const tuning = [4, 11, 7, 2, 9, 4];
 
     const scales = {
-        major: [0, 2, 4, 5, 7, 9, 11],
-        minor: [0, 2, 3, 5, 7, 8, 10],
-        pentatonicMinor: [0, 3, 5, 7, 10],
-        pentatonicMajor: [0, 2, 4, 7, 9],
-        blues: [0, 3, 5, 6, 7, 10],
-        harmoniqueMinor: [0, 2, 3, 5, 7, 8, 11],
-        melodiqueMineur: [0, 2, 3, 5, 7, 9, 11]
+      major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10],
+      pentatonicMinor: [0, 3, 5, 7, 10], pentatonicMajor: [0, 2, 4, 7, 9],
+      blues: [0, 3, 5, 6, 7, 10], harmoniqueMinor: [0, 2, 3, 5, 7, 8, 11],
+      melodiqueMineur: [0, 2, 3, 5, 7, 9, 11]
     };
 
     const arpeggios = {
-        major: [0, 4, 7],
-        minor: [0, 3, 7],
-        dominant7: [0, 4, 7, 10],
-        maj7: [0, 4, 7, 11],
-        min7: [0, 3, 7, 10]
+      major: [0, 4, 7], minor: [0, 3, 7], dominant7: [0, 4, 7, 10],
+      maj7: [0, 4, 7, 11], min7: [0, 3, 7, 10]
     };
 
     const noteColors = {
-        0: '#EF4444', 1: '#F97316', 2: '#FBBF24', 3: '#FCD34D',
-        4: '#22C55E', 5: '#14B8A6', 6: '#06B6D4', 7: '#3B82F6',
-        8: '#8B5CF6', 9: '#D946EF', 10: '#EC4899', 11: '#F43F5E'
+      0: '#EF4444', 1: '#F97316', 2: '#FBBF24', 3: '#FCD34D',
+      4: '#22C55E', 5: '#14B8A6', 6: '#06B6D4', 7: '#3B82F6',
+      8: '#8B5CF6', 9: '#D946EF', 10: '#EC4899', 11: '#F43F5E'
     };
 
-    // Helper functions
-    function getKeyIndex(noteName) {
-        return noteNames.universal.indexOf(noteName);
-    }
+    function getKeyIndex(noteName) { return noteNames.universal.indexOf(noteName); }
 
     function getNotesByScale() {
-        const keyIndex = getKeyIndex(state.selectedKey);
-        const scaleIntervals = scales[state.selectedScale];
-        return scaleIntervals.map(interval => (keyIndex + interval) % 12);
+      const keyIndex = getKeyIndex(state.selectedKey);
+      return scales[state.selectedScale].map(interval => (keyIndex + interval) % 12);
     }
 
     function getNotesByArpeggio() {
-        const keyIndex = getKeyIndex(state.selectedKey);
-        const arpeggioIntervals = arpeggios[state.selectedArpeggio];
-        return arpeggioIntervals.map(interval => (keyIndex + interval) % 12);
+      const keyIndex = getKeyIndex(state.selectedKey);
+      return arpeggios[state.selectedArpeggio].map(interval => (keyIndex + interval) % 12);
     }
 
     function getVisibleNotes() {
-    if (state.mode === 'scale') return getNotesByScale();
-    if (state.mode === 'arpeggio') return getNotesByArpeggio();
-    return state.selectedNotes.map(note => getKeyIndex(note)).filter(idx => idx !== -1);
-}
+      if (state.mode === 'scale') return getNotesByScale();
+      if (state.mode === 'arpeggio') return getNotesByArpeggio();
+      return state.selectedNotes.map(note => getKeyIndex(note)).filter(idx => idx !== -1);
+    }
 
-    // Initialize notes grid
     function initializeNotesGrid() {
-        const grid = document.getElementById('notesGrid');
-        grid.innerHTML = '';
-        noteNames.universal.forEach((note, idx) => {
-            const btn = document.createElement('button');
-            btn.className = 'note-btn';
+      const grid = document.getElementById('notesGrid');
+      grid.innerHTML = '';
+      noteNames.universal.forEach((note, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'note-btn';
+        if (state.notation === 'universal') btn.textContent = note;
+        else if (state.notation === 'french') btn.textContent = noteNames.french[idx];
+        else btn.textContent = intervalToDegree[idx];
 
-            if(state.notation === 'universal') btn.textContent = note;
-            else if(state.notation === 'french') btn.textContent = noteNames.french[idx];
-            else btn.textContent = intervalToDegree[idx];
-
-            if(state.selectedNotes.includes(note)) {
-                btn.style.backgroundColor = noteColors[idx];
-                btn.style.color = 'white';
-                btn.style.borderColor = noteColors[idx];
-            } else {
-                btn.style.backgroundColor = '#f5f7fa';
-                btn.style.color = '#667eea';
-                btn.style.borderColor = '#e0e0e0';
-            }
-
-            btn.onclick = () => toggleNote(note);
-            grid.appendChild(btn);
-        });
+        if (state.selectedNotes.includes(note)) {
+          btn.style.backgroundColor = noteColors[idx];
+          btn.style.color = 'white';
+          btn.style.borderColor = noteColors[idx];
+        } else {
+          btn.style.backgroundColor = '#f5f5f3';
+          btn.style.color = '#6b7280';
+          btn.style.borderColor = '#e8e8e4';
+        }
+        btn.onclick = () => toggleNote(note);
+        grid.appendChild(btn);
+      });
     }
 
     function toggleNote(note) {
-        if(state.selectedNotes.includes(note)) {
-            state.selectedNotes = state.selectedNotes.filter(n => n !== note);
-        } else state.selectedNotes.push(note);
-        initializeNotesGrid();
-        updateFretboard();
+      if (state.selectedNotes.includes(note)) {
+        state.selectedNotes = state.selectedNotes.filter(n => n !== note);
+      } else state.selectedNotes.push(note);
+      initializeNotesGrid();
+      updateFretboard();
     }
 
-    // Update UI
     function updateModeUI() {
-        const panel = document.querySelector('.control-panel');
+      const panel = document.querySelector('.control-panel');
+      document.getElementById('scaleGroup').style.display = state.mode === 'scale' ? 'block' : 'none';
+      document.getElementById('arpeggioGroup').style.display = state.mode === 'arpeggio' ? 'block' : 'none';
+      document.getElementById('customNotesGroup').style.display = state.mode === 'custom' ? 'block' : 'none';
+      document.getElementById('keyGroup').style.display = state.mode === 'custom' ? 'none' : 'block';
 
-        document.getElementById('scaleGroup').style.display = state.mode === 'scale' ? 'block' : 'none';
-        document.getElementById('arpeggioGroup').style.display = state.mode === 'arpeggio' ? 'block' : 'none';
-        document.getElementById('customNotesGroup').style.display = state.mode === 'custom' ? 'block' : 'none';
-        document.getElementById('keyGroup').style.display = state.mode === 'custom' ? 'none' : 'block';
-
-        const notationSelect = document.getElementById('notationSelect');
-        Array.from(notationSelect.options).forEach(opt => {
-            if(opt.value === 'degrees') opt.disabled = state.mode === 'custom';
-        });
-        if(state.notation === 'degrees' && state.mode === 'custom') {
-            state.notation = 'universal';
-            notationSelect.value = 'universal';
-        }
-
-        if(state.mode === 'custom') {
-            panel.classList.add('custom-mode');
-            initializeNotesGrid();
-        } else {
-            panel.classList.remove('custom-mode');
-        }
+      const notationSelect = document.getElementById('notationSelect');
+      Array.from(notationSelect.options).forEach(opt => {
+        if (opt.value === 'degrees') opt.disabled = state.mode === 'custom';
+      });
+      if (state.notation === 'degrees' && state.mode === 'custom') {
+        state.notation = 'universal';
+        notationSelect.value = 'universal';
+      }
+      if (state.mode === 'custom') {
+        panel.classList.add('custom-mode');
+        initializeNotesGrid();
+      } else {
+        panel.classList.remove('custom-mode');
+      }
     }
 
-    function updateUI() {
-        updateModeUI();
-        updateFretboard();
-    }
+    function updateUI() { updateModeUI(); updateFretboard(); }
 
-    // Event listeners
     document.getElementById('notationSelect').addEventListener('change', e => {
-        state.notation = e.target.value;
-        if(state.mode === 'custom') initializeNotesGrid();
-        updateFretboard();
+      state.notation = e.target.value;
+      if (state.mode === 'custom') initializeNotesGrid();
+      updateFretboard();
     });
-
     document.getElementById('modeSelect').addEventListener('change', e => {
-        state.mode = e.target.value;
-
-        // Si on passe en arpeggio et qu'aucun choix, on initialise
-        if(state.mode === 'arpeggio' && !state.selectedArpeggio) state.selectedArpeggio = 'major';
-        if(state.mode === 'scale' && !state.selectedScale) state.selectedScale = 'major';
-
-        updateUI();
+      state.mode = e.target.value;
+      if (state.mode === 'arpeggio' && !state.selectedArpeggio) state.selectedArpeggio = 'major';
+      if (state.mode === 'scale' && !state.selectedScale) state.selectedScale = 'major';
+      updateUI();
     });
-
-    document.getElementById('scaleSelect').addEventListener('change', e => {
-        state.selectedScale = e.target.value;
-        updateFretboard();
-    });
-
-    document.getElementById('arpeggioSelect').addEventListener('change', e => {
-        state.selectedArpeggio = e.target.value;
-        updateFretboard();
-    });
-
-    document.getElementById('keySelect').addEventListener('change', e => {
-        state.selectedKey = e.target.value;
-        updateFretboard();
-    });
+    document.getElementById('scaleSelect').addEventListener('change', e => { state.selectedScale = e.target.value; updateFretboard(); });
+    document.getElementById('arpeggioSelect').addEventListener('change', e => { state.selectedArpeggio = e.target.value; updateFretboard(); });
+    document.getElementById('keySelect').addEventListener('change', e => { state.selectedKey = e.target.value; updateFretboard(); });
 
     function getNoteNameByIndex(noteIndex) {
-    const key = state.selectedKey;
-    const flats = useFlats(key);
-    
-    if(state.notation === 'french') {
-        return flats ? noteNamesFrenchAccidentals[noteIndex].flat : noteNamesFrenchAccidentals[noteIndex].sharp;
-    } else if(state.notation === 'universal') {
-        return flats ? noteNamesAccidentals[noteIndex].flat : noteNamesAccidentals[noteIndex].sharp;
-    } else {
-        // notation degrés
+      const key = state.selectedKey;
+      const flats = useFlats(key);
+      if (state.notation === 'french') return flats ? noteNamesFrenchAccidentals[noteIndex].flat : noteNamesFrenchAccidentals[noteIndex].sharp;
+      else if (state.notation === 'universal') return flats ? noteNamesAccidentals[noteIndex].flat : noteNamesAccidentals[noteIndex].sharp;
+      else {
         const tonicIndex = getKeyIndex(state.selectedKey);
         return intervalToDegree[(noteIndex - tonicIndex + 12) % 12];
+      }
     }
-}
 
-    // Draw fretboard
     function updateFretboard() {
-        const svg = document.getElementById('fretboard');
-        svg.innerHTML = '';
+      const svg = document.getElementById('fretboard');
+      svg.innerHTML = '';
+      const visibleNotes = getVisibleNotes();
+      const stringSpacing = 38, firstStringY = 60, lastStringY = firstStringY + (5 * stringSpacing);
+      const neckPadding = 18, fretCount = 15, fretWidth = 48, openStringX = 25, startX = 50;
+      const endX = startX + fretCount * fretWidth;
 
-        const visibleNotes = getVisibleNotes();
+      const neck = document.createElementNS("http://www.w3.org/2000/svg","rect");
+      neck.setAttribute("x", startX); neck.setAttribute("y", firstStringY - neckPadding);
+      neck.setAttribute("width", endX - startX); neck.setAttribute("height", (lastStringY - firstStringY) + neckPadding*2);
+      neck.setAttribute("fill","#7b4f2a"); svg.appendChild(neck);
 
-        const stringSpacing = 38;
-        const firstStringY = 60;
-        const lastStringY = firstStringY + (5 * stringSpacing);
-        const neckPadding = 18;
-        const fretCount = 15;
-        const fretWidth = 48;
-        const openStringX = 25;
-        const startX = 50;
-        const endX = startX + fretCount * fretWidth;
+      for (let i=0; i<6; i++) {
+        const y = firstStringY + i * stringSpacing;
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1', startX); line.setAttribute('y1', y);
+        line.setAttribute('x2', endX); line.setAttribute('y2', y);
+        line.setAttribute('stroke','#d0d0d0'); line.setAttribute('stroke-width','3');
+        svg.appendChild(line);
+      }
 
-        // Neck
-        const neck = document.createElementNS("http://www.w3.org/2000/svg","rect");
-        neck.setAttribute("x", startX);
-        neck.setAttribute("y", firstStringY - neckPadding);
-        neck.setAttribute("width", endX - startX);
-        neck.setAttribute("height", (lastStringY - firstStringY) + neckPadding*2);
-        neck.setAttribute("fill","#7b4f2a");
-        svg.appendChild(neck);
+      for (let i=0; i<6; i++) {
+        const ni = tuning[i];
+        const name = getNoteNameByIndex(ni);
+        const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+        text.setAttribute('x', 25); text.setAttribute('y', firstStringY + i * stringSpacing);
+        text.setAttribute('text-anchor','middle'); text.setAttribute('dominant-baseline','middle');
+        text.setAttribute('fill','#ffffff'); text.setAttribute('font-size','10'); text.setAttribute('font-weight','bold');
+        text.textContent = name; svg.appendChild(text);
+      }
 
-        // Strings
-        for(let i=0;i<6;i++){
-            const y = firstStringY + i * stringSpacing;
-            const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-            line.setAttribute('x1', startX);
-            line.setAttribute('y1', y);
-            line.setAttribute('x2', endX);
-            line.setAttribute('y2', y);
-            line.setAttribute('stroke','#d0d0d0');
-            line.setAttribute('stroke-width','3');
-            svg.appendChild(line);
+      for (let i=0; i<=fretCount; i++) {
+        const x = startX + i * fretWidth;
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1',x); line.setAttribute('y1',firstStringY - neckPadding);
+        line.setAttribute('x2',x); line.setAttribute('y2',lastStringY + neckPadding);
+        line.setAttribute('stroke','#c0c0c0'); line.setAttribute('stroke-width',i===0?'5':'1.5');
+        line.setAttribute('opacity',i===0?'1':'0.6'); svg.appendChild(line);
+      }
+
+      for (let i=1; i<=fretCount; i++) {
+        const x = startX + (i-1) * fretWidth + fretWidth/2;
+        const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+        text.setAttribute('x', x); text.setAttribute('y', firstStringY - neckPadding - 10);
+        text.setAttribute('text-anchor','middle'); text.setAttribute('fill','#555');
+        text.setAttribute('font-size','12'); text.setAttribute('font-weight','bold');
+        text.textContent = i; svg.appendChild(text);
+      }
+
+      const tonicIndex = getKeyIndex(state.selectedKey);
+      for (let s=0; s<6; s++) {
+        for (let f=-1; f<fretCount; f++) {
+          const noteIndex = f === -1 ? tuning[s] : (tuning[s] + f + 1) % 12;
+          if (state.mode === 'custom') {
+            if (!visibleNotes.includes(noteIndex) && !isPositionSelected(s, f)) continue;
+          } else {
+            if (!visibleNotes.includes(noteIndex)) continue;
+          }
+          const x = f===-1 ? openStringX : startX + f * fretWidth + fretWidth/2;
+          const y = firstStringY + s * stringSpacing;
+          const noteName = getNoteNameByIndex(noteIndex);
+          const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          circle.setAttribute('cx',x); circle.setAttribute('cy',y); circle.setAttribute('r',14);
+          circle.setAttribute('fill',noteColors[noteIndex]); circle.setAttribute('filter','drop-shadow(0 2px 4px rgba(0,0,0,0.2))');
+          svg.appendChild(circle);
+          if (state.mode !== 'custom' && noteIndex === tonicIndex) {
+            const outline = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            outline.setAttribute('cx',x); outline.setAttribute('cy',y); outline.setAttribute('r',16);
+            outline.setAttribute('fill','none'); outline.setAttribute('stroke','white'); outline.setAttribute('stroke-width','2');
+            svg.appendChild(outline);
+          }
+          const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+          text.setAttribute('x',x); text.setAttribute('y',y);
+          text.setAttribute('text-anchor','middle'); text.setAttribute('dominant-baseline','middle');
+          text.setAttribute('fill','white'); text.setAttribute('font-size','10'); text.setAttribute('font-weight','bold');
+          text.textContent = noteName; svg.appendChild(text);
         }
-
-        // String names
-for(let i=0;i<6;i++){
-    const noteIndex = tuning[i];
-    const name = getNoteNameByIndex(noteIndex); // <-- ici on récupère bien le nom
-
-    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
-
-    text.setAttribute('x', 25);
-    text.setAttribute('y', firstStringY + i * stringSpacing);
-    text.setAttribute('text-anchor','middle');
-    text.setAttribute('dominant-baseline','middle');
-    text.setAttribute('fill','#ffffff');
-    text.setAttribute('font-size','10');
-    text.setAttribute('font-weight','bold');
-
-    text.textContent = name;
-
-    svg.appendChild(text);
-}
-
-        // Frets
-        for(let i=0;i<=fretCount;i++){
-            const x = startX + i * fretWidth;
-            const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-            line.setAttribute('x1',x);
-            line.setAttribute('y1',firstStringY - neckPadding);
-            line.setAttribute('x2',x);
-            line.setAttribute('y2',lastStringY + neckPadding);
-            line.setAttribute('stroke','#c0c0c0');
-            line.setAttribute('stroke-width',i===0?'5':'1.5');
-            line.setAttribute('opacity',i===0?'1':'0.6');
-            svg.appendChild(line);
-        }
-
-       // Fret numbers
-for (let i = 1; i <= fretCount; i++) {
-    const x = startX + (i - 1) * fretWidth + fretWidth / 2;
-
-    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', x);
-    text.setAttribute('y', firstStringY - neckPadding - 10);
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('fill', '#ffffff');
-    text.setAttribute('font-size', '12');
-    text.setAttribute('font-weight', 'bold');
-    text.textContent = i;
-
-    svg.appendChild(text);
-}
-
-
-        const tonicIndex = getKeyIndex(state.selectedKey);
-
-       for(let s=0;s<6;s++){
-    for(let f=-1;f<fretCount;f++){
-        const noteIndex = f === -1 ? tuning[s] : (tuning[s] + f + 1) % 12;
-
-        if(state.mode === 'custom') {
-            const selectedByGrid = visibleNotes.includes(noteIndex);
-            const selectedByPosition = isPositionSelected(s, f);
-
-            if(!selectedByGrid && !selectedByPosition) continue;
-        } else {
-            if(!visibleNotes.includes(noteIndex)) continue;
-        }
-
-                const x = f===-1?openStringX:startX + f * fretWidth + fretWidth/2;
-                const y = firstStringY + s * stringSpacing;
-                let noteName = getNoteNameByIndex(noteIndex);
-
-                const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
-                circle.setAttribute('cx',x);
-                circle.setAttribute('cy',y);
-                circle.setAttribute('r',14);
-                circle.setAttribute('fill',noteColors[noteIndex]);
-                circle.setAttribute('filter','drop-shadow(0 2px 4px rgba(0,0,0,0.2))');
-                svg.appendChild(circle);
-
-                if(state.mode!=='custom' && noteIndex===tonicIndex){
-                    const outline = document.createElementNS('http://www.w3.org/2000/svg','circle');
-                    outline.setAttribute('cx',x);
-                    outline.setAttribute('cy',y);
-                    outline.setAttribute('r',16);
-                    outline.setAttribute('fill','none');
-                    outline.setAttribute('stroke','white');
-                    outline.setAttribute('stroke-width','2');
-                    svg.appendChild(outline);
-                }
-
-                const text = document.createElementNS('http://www.w3.org/2000/svg','text');
-                text.setAttribute('x',x);
-                text.setAttribute('y',y);
-                text.setAttribute('text-anchor','middle');
-                text.setAttribute('dominant-baseline','middle');
-                text.setAttribute('fill','white');
-                text.setAttribute('font-size','10');
-                text.setAttribute('font-weight','bold');
-                text.textContent = noteName;
-                svg.appendChild(text);
-            }
-        }
+      }
     }
-    
-  document.getElementById('fretboard').addEventListener('dblclick', function(event) {
-    if (state.mode !== 'custom') return;
 
-    const svg = this;
-    const pt = svg.createSVGPoint();
-    pt.x = event.clientX;
-    pt.y = event.clientY;
-    const cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse());
-
-    const stringSpacing = 38;
-    const firstStringY = 60;
-    const fretCount = 15;
-    const fretWidth = 48;
-    const startX = 50;
-
-    let stringNumber = Math.round((cursorpt.y - firstStringY) / stringSpacing);
-    if (stringNumber < 0 || stringNumber > 5) return;
-
-    let fretNumber;
-    if (cursorpt.x < startX) {
-        fretNumber = -1; // corde à vide
-    } else {
+    document.getElementById('fretboard').addEventListener('dblclick', function(event) {
+      if (state.mode !== 'custom') return;
+      const svg = this;
+      const pt = svg.createSVGPoint();
+      pt.x = event.clientX; pt.y = event.clientY;
+      const cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse());
+      const stringSpacing = 38, firstStringY = 60, fretCount = 15, fretWidth = 48, startX = 50;
+      let stringNumber = Math.round((cursorpt.y - firstStringY) / stringSpacing);
+      if (stringNumber < 0 || stringNumber > 5) return;
+      let fretNumber;
+      if (cursorpt.x < startX) {
+        fretNumber = -1;
+      } else {
         fretNumber = Math.floor((cursorpt.x - startX) / fretWidth);
         if (fretNumber < 0 || fretNumber > fretCount - 1) return;
-    }
+      }
+      const existingIndex = state.selectedPositions.findIndex(pos => pos.string === stringNumber && pos.fret === fretNumber);
+      if (existingIndex !== -1) state.selectedPositions.splice(existingIndex, 1);
+      else state.selectedPositions.push({string: stringNumber, fret: fretNumber});
+      updateFretboard();
+    });
 
-    const existingIndex = state.selectedPositions.findIndex(
-        pos => pos.string === stringNumber && pos.fret === fretNumber
-    );
-
-    if (existingIndex !== -1) {
-        state.selectedPositions.splice(existingIndex, 1);
-    } else {
-        state.selectedPositions.push({
-            string: stringNumber,
-            fret: fretNumber
-        });
-    }
-
-    updateFretboard();
-});
-
-    // Initialize
     updateUI();
-</script>
+  </script>
 </body>
 </html>
