@@ -251,6 +251,67 @@
       .control-panel { grid-template-columns: 1fr; }
       .control-group { padding: 12px; }
     }
+
+    .help-btn {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--dark);
+      color: white;
+      font-size: 20px; font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+      transition: background 0.15s, transform 0.12s;
+      z-index: 200;
+      line-height: 1;
+    }
+    .help-btn:hover { background: var(--accent); transform: scale(1.08); }
+    .help-btn.open  { background: var(--accent); }
+
+    .help-panel {
+      display: none;
+      position: fixed;
+      bottom: 78px; right: 24px;
+      width: 300px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08);
+      z-index: 199;
+      overflow: hidden;
+    }
+    .help-panel.open { display: block; }
+
+    .help-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border2);
+    }
+    .help-title {
+      font-size: 13px; font-weight: 700; color: var(--dark);
+    }
+    .help-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 14px; color: var(--muted2);
+      line-height: 1; padding: 2px 4px; border-radius: 4px;
+      transition: color 0.1s, background 0.1s;
+    }
+    .help-close:hover { color: var(--dark); background: var(--border2); }
+
+    .help-body {
+      padding: 14px 16px 16px;
+      font-size: 13px; line-height: 1.6; color: var(--text);
+      max-height: 320px; overflow-y: auto;
+    }
+    .help-body p { margin-bottom: 10px; }
+    .help-body p:last-child { margin-bottom: 0; }
+    .help-body strong { color: var(--dark); font-weight: 700; }
+
+    @media (max-width: 640px) {
+      .help-panel { width: calc(100vw - 32px); right: 16px; bottom: 72px; }
+      .help-btn   { bottom: 16px; right: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -364,6 +425,19 @@
   </div>
 
   <script>
+    function toggleHelp() {
+      const btn   = document.getElementById('helpBtn');
+      const panel = document.getElementById('helpPanel');
+      const isOpen = panel.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+    }
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#helpBtn') && !e.target.closest('#helpPanel')) {
+        document.getElementById('helpPanel').classList.remove('open');
+        document.getElementById('helpBtn').classList.remove('open');
+      }
+    });
+
     function toggleNav() {
       document.getElementById('navDropdown').classList.toggle('open');
     }
@@ -649,5 +723,20 @@
 
     updateUI();
   </script>
+
+<button class="help-btn" id="helpBtn" onclick="toggleHelp()" aria-label="Aide">?</button>
+
+<div class="help-panel" id="helpPanel">
+  <div class="help-header">
+    <span class="help-title">Comment utiliser le Fretboard</span>
+    <button class="help-close" onclick="toggleHelp()" aria-label="Fermer">✕</button>
+  </div>
+  <div class="help-body">
+    <p><strong>Mode Gammes</strong><br>Sélectionnez une gamme et une tonalité pour visualiser toutes les notes sur le manche.</p>
+    <p><strong>Mode Arpèges</strong><br>Affichez les notes d'un arpège dans la tonalité de votre choix.</p>
+    <p><strong>Mode Notes personnalisées</strong><br>Cochez les notes que vous voulez afficher. Double-cliquez directement sur le manche pour épingler une note à une position précise.</p>
+    <p><strong>Notation</strong><br>Basculez entre la notation universelle (C, D, E…), française (Do, Ré, Mi…) ou par degrés (1, 2, 3…).</p>
+  </div>
+</div>
 </body>
 </html>
