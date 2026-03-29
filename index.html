@@ -211,6 +211,34 @@
       color: var(--accent);
     }
 
+    .key-picker { position: relative; }
+    .key-display {
+      width: 100%; padding: 6px 10px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: white; border: 1.5px solid var(--border);
+      border-radius: var(--r-xs); color: var(--text);
+      font-size: 13px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: border-color 0.15s; text-align: left;
+    }
+    .key-display:hover, .key-display.open { border-color: var(--accent); }
+    .key-panel {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: white; border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.13); z-index: 50; padding: 10px;
+    }
+    .key-panel.open { display: block; }
+    .key-list {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px;
+    }
+    .key-item {
+      padding: 7px 4px; border-radius: var(--r-xs);
+      border: 1.5px solid var(--border); background: var(--border2);
+      color: var(--muted2); font-size: 12px; font-weight: 700; font-family: inherit;
+      cursor: pointer; text-align: center; transition: all 0.15s;
+    }
+    .key-item:hover { border-color: var(--accent); color: var(--accent); }
+    .key-item.selected { background: var(--accent); color: white; border-color: var(--accent); }
+
     .notes-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -423,11 +451,18 @@
 
           <div class="control-group" id="keyGroup">
             <label>Tonalité</label>
-            <div class="accidental-toggle">
-              <button class="acc-btn active" id="sharpBtn" onclick="setAccidentalMode('sharp')">♯ Dièses</button>
-              <button class="acc-btn"        id="flatBtn"  onclick="setAccidentalMode('flat')">♭ Bémols</button>
+            <div class="key-picker" id="keyPicker">
+              <button class="key-display" id="keyDisplay" onclick="toggleKeyPicker()">
+                <span id="keyDisplayText">C</span><span>▾</span>
+              </button>
+              <div class="key-panel" id="keyPanel">
+                <div class="accidental-toggle">
+                  <button class="acc-btn active" id="sharpBtn" onclick="setAccidentalMode('sharp')">♯ Dièses</button>
+                  <button class="acc-btn"        id="flatBtn"  onclick="setAccidentalMode('flat')">♭ Bémols</button>
+                </div>
+                <div class="key-list" id="keyList"></div>
+              </div>
             </div>
-            <select id="keySelect"></select>
           </div>
         </div>
 
@@ -485,17 +520,37 @@
       'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'
     };
 
-    function updateKeySelect() {
-      const sel  = document.getElementById('keySelect');
+    function updateKeyList() {
       const list = state.accidentalMode === 'sharp' ? sharpKeyList : flatKeyList;
-      sel.innerHTML = list.map(k => `<option value="${k}">${k}</option>`).join('');
-      if (list.includes(state.selectedKey)) {
-        sel.value = state.selectedKey;
-      } else {
+      document.getElementById('keyList').innerHTML = list.map(k =>
+        `<button class="key-item${k === state.selectedKey ? ' selected' : ''}" onclick="selectKey('${k}')">${k}</button>`
+      ).join('');
+    }
+
+    function updateKeySelect() {
+      const list = state.accidentalMode === 'sharp' ? sharpKeyList : flatKeyList;
+      if (!list.includes(state.selectedKey)) {
         const enh = toEnharmonic[state.selectedKey];
-        state.selectedKey = (enh && list.includes(enh)) ? enh : list[0];
-        sel.value = state.selectedKey;
+        state.selectedKey = (enh && list.includes(enh)) ? enh : 'C';
       }
+      document.getElementById('keyDisplayText').textContent = state.selectedKey;
+      updateKeyList();
+    }
+
+    function toggleKeyPicker() {
+      const panel = document.getElementById('keyPanel');
+      const btn   = document.getElementById('keyDisplay');
+      const open  = panel.classList.toggle('open');
+      btn.classList.toggle('open', open);
+    }
+
+    function selectKey(key) {
+      state.selectedKey = key;
+      document.getElementById('keyDisplayText').textContent = key;
+      document.getElementById('keyPanel').classList.remove('open');
+      document.getElementById('keyDisplay').classList.remove('open');
+      updateKeyList();
+      updateFretboard();
     }
 
     function setAccidentalMode(mode) {
@@ -729,7 +784,12 @@
     });
     document.getElementById('scaleSelect').addEventListener('change', e => { state.selectedScale = e.target.value; updateFretboard(); });
     document.getElementById('arpeggioSelect').addEventListener('change', e => { state.selectedArpeggio = e.target.value; updateFretboard(); });
-    document.getElementById('keySelect').addEventListener('change', e => { state.selectedKey = e.target.value; updateFretboard(); });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#keyPicker')) {
+        document.getElementById('keyPanel').classList.remove('open');
+        document.getElementById('keyDisplay').classList.remove('open');
+      }
+    });
 
     function getNoteNameByIndex(noteIndex) {
       const key = state.selectedKey;
