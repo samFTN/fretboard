@@ -183,6 +183,34 @@
     }
     select:hover, select:focus { border-color: var(--accent); }
 
+    .accidental-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .acc-btn {
+      flex: 1;
+      padding: 6px 4px;
+      border-radius: var(--r-xs);
+      border: 1.5px solid var(--border);
+      background: var(--border2);
+      color: var(--muted2);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .acc-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .acc-btn:hover:not(.active) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     .notes-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -395,29 +423,11 @@
 
           <div class="control-group" id="keyGroup">
             <label>Tonalité</label>
-            <select id="keySelect">
-              <optgroup label="Toutes les tonalités (♯)">
-                <option value="C">C</option>
-                <option value="C#">C#</option>
-                <option value="D">D</option>
-                <option value="D#">D#</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="F#">F#</option>
-                <option value="G">G</option>
-                <option value="G#">G#</option>
-                <option value="A">A</option>
-                <option value="A#">A#</option>
-                <option value="B">B</option>
-              </optgroup>
-              <optgroup label="Équivalents bémols (♭)">
-                <option value="Db">Db</option>
-                <option value="Eb">Eb</option>
-                <option value="Gb">Gb</option>
-                <option value="Ab">Ab</option>
-                <option value="Bb">Bb</option>
-              </optgroup>
-            </select>
+            <div class="accidental-toggle">
+              <button class="acc-btn active" id="sharpBtn" onclick="setAccidentalMode('sharp')">♯ Dièses</button>
+              <button class="acc-btn"        id="flatBtn"  onclick="setAccidentalMode('flat')">♭ Bémols</button>
+            </div>
+            <select id="keySelect"></select>
           </div>
         </div>
 
@@ -463,9 +473,38 @@
       selectedScale: 'major',
       selectedArpeggio: 'major',
       selectedKey: 'C',
+      accidentalMode: 'sharp',
       selectedNotes: ['C'],
       selectedPositions: []
     };
+
+    const sharpKeyList = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    const flatKeyList  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+    const toEnharmonic = {
+      'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb',
+      'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'
+    };
+
+    function updateKeySelect() {
+      const sel  = document.getElementById('keySelect');
+      const list = state.accidentalMode === 'sharp' ? sharpKeyList : flatKeyList;
+      sel.innerHTML = list.map(k => `<option value="${k}">${k}</option>`).join('');
+      if (list.includes(state.selectedKey)) {
+        sel.value = state.selectedKey;
+      } else {
+        const enh = toEnharmonic[state.selectedKey];
+        state.selectedKey = (enh && list.includes(enh)) ? enh : list[0];
+        sel.value = state.selectedKey;
+      }
+    }
+
+    function setAccidentalMode(mode) {
+      state.accidentalMode = mode;
+      document.getElementById('sharpBtn').classList.toggle('active', mode === 'sharp');
+      document.getElementById('flatBtn').classList.toggle('active', mode === 'flat');
+      updateKeySelect();
+      updateFretboard();
+    }
 
     const noteNamesAccidentals = [
       {sharp: 'C', flat: 'C'}, {sharp: 'C#', flat: 'Db'}, {sharp: 'D', flat: 'D'},
@@ -812,6 +851,7 @@
       updateFretboard();
     });
 
+    updateKeySelect();
     updateUI();
   </script>
 
