@@ -396,18 +396,27 @@
           <div class="control-group" id="keyGroup">
             <label>Tonalité</label>
             <select id="keySelect">
-              <option value="C">C</option>
-              <option value="C#">C#</option>
-              <option value="D">D</option>
-              <option value="D#">D#</option>
-              <option value="E">E</option>
-              <option value="F">F</option>
-              <option value="F#">F#</option>
-              <option value="G">G</option>
-              <option value="G#">G#</option>
-              <option value="A">A</option>
-              <option value="A#">A#</option>
-              <option value="B">B</option>
+              <optgroup label="♯ Dièses">
+                <option value="C">C</option>
+                <option value="C#">C#</option>
+                <option value="D">D</option>
+                <option value="D#">D#</option>
+                <option value="E">E</option>
+                <option value="F#">F#</option>
+                <option value="G">G</option>
+                <option value="G#">G#</option>
+                <option value="A">A</option>
+                <option value="A#">A#</option>
+                <option value="B">B</option>
+              </optgroup>
+              <optgroup label="♭ Bémols">
+                <option value="F">F</option>
+                <option value="Bb">Bb</option>
+                <option value="Eb">Eb</option>
+                <option value="Ab">Ab</option>
+                <option value="Db">Db</option>
+                <option value="Gb">Gb</option>
+              </optgroup>
             </select>
           </div>
         </div>
@@ -563,14 +572,10 @@
       return letter + acc;
     }
 
-    // D#/G#/A# produce double sharps in major/harmonic scales — use flat enharmonic for naming
-    const enharmonicForNaming = { 'D#': 'Eb', 'G#': 'Ab', 'A#': 'Bb' };
-
     function buildNoteNameMap(rootName, type, isArpeggio) {
-      const effectiveRoot = enharmonicForNaming[rootName] || rootName;
       const intervals = isArpeggio ? arpeggios[type] : scales[type];
       const offsets = isArpeggio ? arpeggioLetterOffsets[type] : scaleDegreeLetterOffsets[type];
-      const root = getRootInfo(effectiveRoot);
+      const root = getRootInfo(rootName);
       const rootLetterIdx = letterNames.indexOf(root.letter);
       const map = {};
       intervals.forEach((interval, i) => {
@@ -778,7 +783,8 @@
           const text = document.createElementNS('http://www.w3.org/2000/svg','text');
           text.setAttribute('x',x); text.setAttribute('y',y);
           text.setAttribute('text-anchor','middle'); text.setAttribute('dominant-baseline','middle');
-          text.setAttribute('fill','white'); text.setAttribute('font-size','10'); text.setAttribute('font-weight','bold');
+          const fs = noteName.length >= 4 ? 7 : noteName.length === 3 ? 8 : 10;
+          text.setAttribute('fill','white'); text.setAttribute('font-size', fs); text.setAttribute('font-weight','bold');
           text.textContent = noteName; svg.appendChild(text);
         }
       }
